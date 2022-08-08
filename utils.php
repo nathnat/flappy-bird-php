@@ -64,6 +64,34 @@ function terminalSize(): array
     return [$width, $height];
 }
 
+function getKeyboardInput()
+{
+	if (isUnderWindows()) {
+		return windowsKeyboardInput();
+	}
+	return unixKeyboardInput();
+}
+
+/**
+ * Cette fonction lit l'input du terminal pour les systèmes Unix.
+ * 
+ * @return string L'input dans le terminal
+ */
+function unixKeyboardInput()
+{
+    static $streamReady = false;
+
+	// On utilise une variable statique car on ne veut exécuter cette fonction qu'une seule fois.
+    if (!$streamReady) {
+
+        // Set the stream to be non-blocking.
+        stream_set_blocking(STDIN, false);
+		system('stty cbreak -echo');
+        $streamReady = true;
+    }
+    
+    return fgets(STDIN);
+}
 
 /**
  * Chers petits curieux, je pense que vous pouvez passer votre chemin ici !
@@ -75,7 +103,7 @@ function terminalSize(): array
  * @param int[] $touches Les touches à détecter
  * @return int|null La touche détectée ou null.
  */
-function getKeyboardInput()
+function windowsKeyboardInput()
 {
 
     // J'utilise ces constantes pour y voir plus clair dans la suite du code qui est déjà coriace.
