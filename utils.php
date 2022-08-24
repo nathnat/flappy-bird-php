@@ -7,7 +7,7 @@
  */
 function isUnderWindows(): bool
 {
-    return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
 
 /**
@@ -18,13 +18,13 @@ function isUnderWindows(): bool
  */
 function printToCoordinates($x, $y, string $text)
 {
-    //fprintf(STDOUT,"\x1b7\x1b[".$y.';'.$x.'f'.$text."\x1b8");
-    fprintf(STDOUT, "\033[%d;%dH%s", round($y), round($x), $text);
+	//fprintf(STDOUT,"\x1b7\x1b[".$y.';'.$x.'f'.$text."\x1b8");
+	fprintf(STDOUT, "\033[%d;%dH%s", round($y), round($x), $text);
 }
 
 function clearTerminal()
 {
-    fprintf(STDOUT, "\033[H\033[J");
+	fprintf(STDOUT, "\033[H\033[J");
 }
 
 /**
@@ -41,27 +41,27 @@ function clearTerminal()
  */
 function terminalSize(): array
 {
-    // La syntaxe `` est un peu particulière en PHP. C'est une façon rapide d'utiliser la fonction "exec"
-    // pour exécuter un programme externe. On l'utilise rarement principalement parce qu'on ne
-    // contrôle pas grand chose avec son utilisation et elle peut même s'avérer dangereuse dans certains cas.
-    // Mais pour notre petit exercice cela conviendra parfaitement.
-    
-    if (isUnderWindows()) {
-        // La version pour windows
-        $info = `mode CON`;
+	// La syntaxe `` est un peu particulière en PHP. C'est une façon rapide d'utiliser la fonction "exec"
+	// pour exécuter un programme externe. On l'utilise rarement principalement parce qu'on ne
+	// contrôle pas grand chose avec son utilisation et elle peut même s'avérer dangereuse dans certains cas.
+	// Mais pour notre petit exercice cela conviendra parfaitement.
 
-        if (null === $info || !preg_match('/--------+\r?\n.+?(\d+)\r?\n.+?(\d+)\r?\n/', $info, $matches)) {
-            return null;
-        }
+	if (isUnderWindows()) {
+		// La version pour windows
+		$info = `mode CON`;
 
-        return [(int) $matches[2], (int) $matches[1]];
-    }
-    
-    // Sous Linux
-    $width = intval(`tput cols`);
-    $height = intval(`tput lines`);
+		if (null === $info || !preg_match('/--------+\r?\n.+?(\d+)\r?\n.+?(\d+)\r?\n/', $info, $matches)) {
+			return null;
+		}
 
-    return [$width, $height];
+		return [(int) $matches[2], (int) $matches[1]];
+	}
+
+	// Sous Linux
+	$width = intval(`tput cols`);
+	$height = intval(`tput lines`);
+
+	return [$width, $height];
 }
 
 function getKeyboardInput()
@@ -79,18 +79,18 @@ function getKeyboardInput()
  */
 function unixKeyboardInput()
 {
-    static $streamReady = false;
+	static $streamReady = false;
 
 	// On utilise une variable statique car on ne veut exécuter cette fonction qu'une seule fois.
-    if (!$streamReady) {
+	if (!$streamReady) {
 
-        // Set the stream to be non-blocking.
-        stream_set_blocking(STDIN, false);
+		// Set the stream to be non-blocking.
+		stream_set_blocking(STDIN, false);
 		system('stty cbreak -echo');
-        $streamReady = true;
-    }
-    
-    return fgets(STDIN);
+		$streamReady = true;
+	}
+
+	return fgets(STDIN);
 }
 
 /**
@@ -106,23 +106,23 @@ function unixKeyboardInput()
 function windowsKeyboardInput()
 {
 
-    // J'utilise ces constantes pour y voir plus clair dans la suite du code qui est déjà coriace.
-    $STD_INPUT_HANDLE = -10;
-    // https://docs.microsoft.com/fr-fr/windows/console/setconsolemode
-    $ENABLE_ECHO_INPUT = 0x0004;
-    $ENABLE_PROCESSED_INPUT = 0x0001;
-    $ENABLE_WINDOW_INPUT = 0x0008;
-    // https://docs.microsoft.com/fr-fr/windows/console/input-record-str
-    $KEY_EVENT = 0x0001;
+	// J'utilise ces constantes pour y voir plus clair dans la suite du code qui est déjà coriace.
+	$STD_INPUT_HANDLE = -10;
+	// https://docs.microsoft.com/fr-fr/windows/console/setconsolemode
+	$ENABLE_ECHO_INPUT = 0x0004;
+	$ENABLE_PROCESSED_INPUT = 0x0001;
+	$ENABLE_WINDOW_INPUT = 0x0008;
+	// https://docs.microsoft.com/fr-fr/windows/console/input-record-str
+	$KEY_EVENT = 0x0001;
 
-    static $windows = null;
-    static $handle = null;
-    
+	static $windows = null;
+	static $handle = null;
 
-    if (null === $windows) {
-        // Cette définition vient du gist suivant qui détaille beaucoup plus la chose
-        // https://gist.github.com/Nek-/118cc36d0d075febf614c53a48470490
-        $windows = \FFI::cdef(<<<C
+
+	if (null === $windows) {
+		// Cette définition vient du gist suivant qui détaille beaucoup plus la chose
+		// https://gist.github.com/Nek-/118cc36d0d075febf614c53a48470490
+		$windows = \FFI::cdef(<<<C
         typedef unsigned short wchar_t;
         typedef int BOOL;
         typedef unsigned long DWORD;
@@ -203,43 +203,43 @@ function windowsKeyboardInput()
         BOOL CloseHandle(HANDLE hObject);
         C, 'C:\\Windows\\System32\\kernel32.dll');
 
-        $handle = $windows->GetStdHandle($STD_INPUT_HANDLE);
+		$handle = $windows->GetStdHandle($STD_INPUT_HANDLE);
 
-        $newConsoleMode = $ENABLE_WINDOW_INPUT | $ENABLE_PROCESSED_INPUT;
-        if (!$windows->SetConsoleMode($handle, $newConsoleMode)) {
-            throw new \RuntimeException('Il y a un problème avec la fonction SetConsoleMode: impossible de capturer les entrées...! Si vous avez cette erreur postez un message sur le forum de Zeste de Savoir.');
-        }
-    }
+		$newConsoleMode = $ENABLE_WINDOW_INPUT | $ENABLE_PROCESSED_INPUT;
+		if (!$windows->SetConsoleMode($handle, $newConsoleMode)) {
+			throw new \RuntimeException('Il y a un problème avec la fonction SetConsoleMode: impossible de capturer les entrées...! Si vous avez cette erreur postez un message sur le forum de Zeste de Savoir.');
+		}
+	}
 
-    $availableCharsInBuffer = $windows->new('DWORD');
-    $localInputBufferSize = 128;
-    $localInputBuffer = $windows->new("INPUT_RECORD[$localInputBufferSize]");
-    $inputInLocalBuffer = $windows->new('DWORD');
+	$availableCharsInBuffer = $windows->new('DWORD');
+	$localInputBufferSize = 128;
+	$localInputBuffer = $windows->new("INPUT_RECORD[$localInputBufferSize]");
+	$inputInLocalBuffer = $windows->new('DWORD');
 
 
-    $windows->GetNumberOfConsoleInputEvents(
-        $handle,
-        \FFI::addr($availableCharsInBuffer)
-    );
+	$windows->GetNumberOfConsoleInputEvents(
+		$handle,
+		\FFI::addr($availableCharsInBuffer)
+	);
 
-    // Le caractère \0 est quasiment toujours disponible mais ne nous intéresse pas !
-    if ($availableCharsInBuffer->cdata <= 1) {
-        return null; // Encore la petite technique de retour le plus rapidement possible pour éviter d'avoir un niveau supplémentaire
-    }
+	// Le caractère \0 est quasiment toujours disponible mais ne nous intéresse pas !
+	if ($availableCharsInBuffer->cdata <= 1) {
+		return null; // Encore la petite technique de retour le plus rapidement possible pour éviter d'avoir un niveau supplémentaire
+	}
 
-    if (! $windows->ReadConsoleInputA($handle, $localInputBuffer, $localInputBufferSize, \FFI::addr($inputInLocalBuffer)) ) {
-        throw new \RuntimeException('Il y a un problème avec la fonction ReadConsoleInputW: impossible de capturer les entrées...! Si vous avez cette erreur postez un message sur le forum de Zeste de Savoir.');
-    }
+	if (!$windows->ReadConsoleInputA($handle, $localInputBuffer, $localInputBufferSize, \FFI::addr($inputInLocalBuffer))) {
+		throw new \RuntimeException('Il y a un problème avec la fonction ReadConsoleInputW: impossible de capturer les entrées...! Si vous avez cette erreur postez un message sur le forum de Zeste de Savoir.');
+	}
 
-    for ($i = $inputInLocalBuffer->cdata - 1; $i >= 0; $i--) {
-        if ($localInputBuffer[$i]->EventType === $KEY_EVENT) {
-            $keyEvent = $localInputBuffer[$i]->Event->KeyEvent;
+	for ($i = $inputInLocalBuffer->cdata - 1; $i >= 0; $i--) {
+		if ($localInputBuffer[$i]->EventType === $KEY_EVENT) {
+			$keyEvent = $localInputBuffer[$i]->Event->KeyEvent;
 
-            return $keyEvent->uChar->AsciiChar;
-        }
-    }
+			return $keyEvent->uChar->AsciiChar;
+		}
+	}
 
-    return null;
+	return null;
 }
 
 /**
@@ -251,27 +251,29 @@ function windowsKeyboardInput()
  */
 function hideCursor(): void
 {
-    fprintf(STDOUT, "\033[?25l"); // cache le curseur
+	fprintf(STDOUT, "\033[?25l"); // cache le curseur
 
-    // A la fin de l'exécution on affiche le curseur
-    register_shutdown_function(function() {
-        fprintf(STDOUT, "\033[?25h"); // montre le curseur
-    });
+	// A la fin de l'exécution on affiche le curseur
+	register_shutdown_function(function () {
+		fprintf(STDOUT, "\033[?25h"); // montre le curseur
+	});
 
-    // Si jamais on fait CTRL+C on réaffiche le curseur (et on arrête le programme)
-    if (function_exists('pcntl_signal')) {
-        // Cette fonction n'existe que sous linux et macos
-        pcntl_signal(SIGINT, function () {
-            fprintf(STDOUT, "\033[?25h"); // montre le curseur
-            exit;
-        });
-    } else {
-        // Sous windows on doit en utiliser une autre.
-        sapi_windows_set_ctrl_handler(function (int $event) {
-            if ($event === PHP_WINDOWS_EVENT_CTRL_C) {
-                fprintf(STDOUT, "\033[?25h"); // montre le curseur
-                exit;
-            }
-        });
-    }
+	// Si jamais on fait CTRL+C on réaffiche le curseur (et on arrête le programme)
+	if (function_exists('pcntl_signal')) {
+		// Cette fonction n'existe que sous linux et macos
+		pcntl_signal(SIGINT, function () {
+			fprintf(STDOUT, "\033[?25h"); // montre le curseur
+			clearTerminal();
+			exit;
+		});
+	} else {
+		// Sous windows on doit en utiliser une autre.
+		sapi_windows_set_ctrl_handler(function (int $event) {
+			if ($event === PHP_WINDOWS_EVENT_CTRL_C) {
+				fprintf(STDOUT, "\033[?25h"); // montre le curseur
+				clearTerminal();
+				exit;
+			}
+		});
+	}
 }
