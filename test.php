@@ -1,9 +1,5 @@
 <?php
 
-$log = fopen('log', 'a+');
-
-fwrite($log, 'caca');
-
-sleep(5);
-
-fwrite($log, 'pipi');
+if (function_exists('pcntl_signal')) {
+    echo 'CACACA';
+}

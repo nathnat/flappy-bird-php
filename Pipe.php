@@ -21,18 +21,21 @@ class Pipe
         printToCoordinates($this->x, 0, EMPTY_PIPE);
     }
 
-    public function update($bird)
+    public function update($bird, &$score)
     {
         // Quand on arrive au niveau du tuyau
         if ($bird['x'] >= $this->x && $bird['x'] <= $this->x + 6) {
             // On vérifie si il y a une collision
             if (
-                ($bird['y'] >= SCREEN_HEIGHT - $this->bottomPipeHeight - 2)
-                || ($bird['y'] < $this->topPipeHeight + 1)
-            )   
-            {
-                exit;
+                $bird['y'] >= SCREEN_HEIGHT - $this->bottomPipeHeight - 2
+                || $bird['y'] < $this->topPipeHeight + 1
+            ) {
+                gameOver();
             }
+        }
+
+        if ($bird['x'] >= $this->x && $bird['x'] == $this->x + 6) {
+            $score++;
         }
 
         $this->x -= 1;
